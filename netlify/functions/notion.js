@@ -11,26 +11,42 @@ exports.handler = async function(event) {
     };
   }
 
-  const { method, path, key, body } = JSON.parse(event.body || '{}');
+  try {
+    const { method, path, key, body } = JSON.parse(event.body || '{}');
 
-  const response = await fetch('https://api.notion.com/v1' + path, {
-    method: method || 'GET',
-    headers: {
-      'Authorization': 'Bearer ' + key,
-      'Notion-Version': '2022-06-28',
-      'Content-Type': 'application/json'
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
+    if (!key || !path) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Missing key or path' })
+      };
+    }
 
-  const data = await response.json();
+    const response = await fetch('https://api.notion.com/v1' + path, {
+      method: method || 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + key,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
-    },
-    body: JSON.stringify(data)
-  };
+    const data = await response.json();
+
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify(data)
+    };
+  } catch (err) {
+    return {
+      statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: err.message })
+    };
+  }
 };
