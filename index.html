@@ -206,7 +206,7 @@ function move(dir) {
 }
 
 function notionCall(method, path, body) {
-  return fetch('/.netlify/functions/notion', {
+  return fetch('/api/notion', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ method: method, path: path, key: NK, body: body })
