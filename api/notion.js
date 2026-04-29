@@ -8,7 +8,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { method, path, key, body } = req.body;
+    let bodyData = req.body;
+    if (typeof bodyData === 'string') {
+      bodyData = JSON.parse(bodyData);
+    }
+    
+    const { method, path, key, body } = bodyData;
+
     const response = await fetch('https://api.notion.com/v1' + path, {
       method: method || 'GET',
       headers: {
@@ -18,6 +24,7 @@ export default async function handler(req, res) {
       },
       body: body ? JSON.stringify(body) : undefined
     });
+
     const data = await response.json();
     return res.status(200).json(data);
   } catch (err) {
