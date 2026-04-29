@@ -1,11 +1,3 @@
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '1mb',
-    },
-  },
-};
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -15,22 +7,12 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  try {
-    let bodyData = req.body;
-    
-    if (!bodyData) {
-      const buffers = [];
-      for await (const chunk of req) {
-        buffers.push(chunk);
-      }
-      bodyData = JSON.parse(Buffer.concat(buffers).toString());
-    }
-    
-    if (typeof bodyData === 'string') {
-      bodyData = JSON.parse(bodyData);
-    }
+  if (req.method === 'GET') {
+    return res.status(200).json({ status: 'ok' });
+  }
 
-    const { method, path, key, body } = bodyData;
+  try {
+    const { method, path, key, body } = req.body;
 
     const response = await fetch('https://api.notion.com/v1' + path, {
       method: method || 'GET',
